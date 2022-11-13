@@ -22,9 +22,9 @@ resource "aws_ecs_task_definition" "hello_world" {
   container_definitions = <<DEFINITION
 [
   {
-    "image":  "registry.gitlab.com/architect-io/artifacts/nodejs-hello-world:latest",
-    # "cpu": 1024,
-    # "memory": 2048,
+    "image":  "docker.io/library/nginx:latest",
+    "cpu": 1024,
+    "memory": 2048,
     "name": "hello-world-app",
     "networkMode": "awsvpc",
     "portMappings": [
@@ -42,9 +42,10 @@ resource "aws_security_group" "hello_world_task" {
   vpc_id      = aws_vpc.ProjectVpc.id
 
   ingress {
-    protocol        = "tcp"
-    from_port       = 3000
-    to_port         = 3000
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -70,3 +71,23 @@ resource "aws_ecs_service" "hello_world" {
 }
 
 }
+# resource "aws_route_table" "example" {
+#   vpc_id = aws_vpc.ProjectVpc.id
+
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.igw.id
+#   }
+
+ 
+# }
+resource "aws_default_route_table" "example" {
+  default_route_table_id = aws_vpc.ProjectVpc.default_route_table_id
+
+  route {
+  cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.igw.id
+  }
+}
+ 
+
